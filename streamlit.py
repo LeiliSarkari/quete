@@ -22,8 +22,11 @@ def load_data():
 
 df = load_data()
 
+# Afficher les colonnes du DataFrame pour vérifier la présence de 'region'
+st.write('Colonnes disponibles dans le DataFrame :', df.columns)
+
 # Interface utilisateur pour filtrer par région
-region = st.sidebar.selectbox('Choisir une région:', ['US', 'Europe', 'Japon'])
+region = st.sidebar.selectbox('Choisir une région:', df['region'].unique())
 df_filtered = df[df['region'] == region]
 
 # Afficher les premiers enregistrements
