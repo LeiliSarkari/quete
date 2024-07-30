@@ -78,5 +78,3 @@ for i, (x, y) in enumerate(relations):
     axes[i // 2, i % 2].set_ylabel(y)
 
 st.pyplot(fig)
-
-Explication du Code
