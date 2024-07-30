@@ -7,67 +7,44 @@ Original file is located at
     https://colab.research.google.com/drive/1ZoOcxAgPdid33GFs7TKwZ1RVlqjYWSdK
 """
 
-import pandas as pd
-import plotly.express as px
 import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Charger les données
-@st.cache
-def load_data():
-    url = 'https://raw.githubusercontent.com/murpi/wilddata/master/quests/cars.csv'
-    df = pd.read_csv(url)
-    return df
+url = 'https://raw.githubusercontent.com/murpi/wilddata/master/quests/cars.csv'
+df = pd.read_csv(url)
 
-df = load_data()
+# Interface Streamlit
+st.title('Analyse des Données de Voitures')
 
-# Interface utilisateur pour filtrer par région
-region = st.sidebar.selectbox('Choisir une région:', ['US', 'Europe', 'Japon'])
+# Sélecteur de région
+region = st.selectbox('Sélectionnez une région:', ['US', 'Europe', 'Japan'])
 
-# Filtrage des données en fonction de la région sélectionnée
-df_filtered = df[df['region'] == region]
-
-# Afficher les premiers enregistrements
-st.write(f'### Données pour la région : {region}')
-st.dataframe(df_filtered.head())
-
-# Analyse de distribution des prix
-st.subheader('Distribution des Prix des Voitures')
-fig_price_dist = px.histogram(df_filtered, x='price', title='Distribution des Prix des Voitures')
-st.plotly_chart(fig_price_dist)
-
-# Analyse de distribution de la puissance
-st.subheader('Distribution de la Puissance des Voitures')
-fig_power_dist = px.histogram(df_filtered, x='power', title='Distribution de la Puissance des Voitures')
-st.plotly_chart(fig_power_dist)
+# Filtrer les données en fonction de la région
+df_filtered = df[df['Region'] == region]
 
 # Analyse de corrélation
-st.subheader('Analyse de Corrélation')
+st.subheader('Matrice de Corrélation')
 corr = df_filtered.corr()
+fig_corr, ax_corr = plt.subplots(figsize=(10, 8))
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_corr)
+st.pyplot(fig_corr)
 
-# Affichage de la matrice de corrélation
-fig_corr_heatmap = px.imshow(corr, title='Matrice de Corrélation')
-st.plotly_chart(fig_corr_heatmap)
+# Analyse de distribution
+st.subheader('Distribution des Prix des Voitures')
+fig_dist, ax_dist = plt.subplots(figsize=(10, 6))
+sns.histplot(df_filtered['Price'].dropna(), bins=30, kde=True, ax=ax_dist)
+ax_dist.set_title('Distribution des Prix')
+ax_dist.set_xlabel('Prix')
+ax_dist.set_ylabel('Fréquence')
+st.pyplot(fig_dist)
 
-# Relation entre prix et puissance
-st.subheader('Relation entre Prix et Puissance')
-fig_price_power = px.scatter(df_filtered, x='power', y='price', title='Prix vs Puissance')
-st.plotly_chart(fig_price_power)
-
-# Commentaires
-st.markdown("""
-### Commentaires sur les Visualisations :
-
-1. **Distribution des Prix des Voitures** :
-   - Ce graphique montre la répartition des prix des voitures dans la région sélectionnée. On peut observer si la majorité des voitures ont des prix élevés ou bas.
-
-2. **Distribution de la Puissance des Voitures** :
-   - Ce graphique illustre la répartition des puissances des voitures. Une concentration élevée à certains niveaux de puissance peut indiquer des préférences spécifiques ou des standards dans la région.
-
-3. **Matrice de Corrélation** :
-   - La matrice de corrélation montre la relation entre différentes variables. Les coefficients proches de 1 ou -1 indiquent une forte corrélation positive ou négative, respectivement, tandis que les valeurs proches de 0 indiquent peu ou pas de corrélation.
-
-4. **Relation entre Prix et Puissance** :
-   - Ce graphique montre comment la puissance des voitures est liée à leur prix. Une tendance générale peut indiquer si des voitures plus puissantes sont généralement plus chères.
-
-Ces visualisations permettent d'explorer les données de manière interactive et de mieux comprendre les tendances spécifiques à chaque région.
-""")
+# Graphique interactif avec Plotly
+st.subheader('Graphique Interactif des Prix vs. Kilométrage')
+fig_plotly = px.scatter(df_filtered, x='Price', y='Mileage', color='Region',
+                       title=f'Distribution des Prix vs. Kilométrage ({region})',
+                       labels={'Price': 'Prix', 'Mileage': 'Kilométrage'})
+st.plotly_chart(fig_plotly)
