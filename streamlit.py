@@ -71,8 +71,3 @@ st.markdown("""
 
 Ces visualisations permettent d'explorer les données de manière interactive et de mieux comprendre les tendances spécifiques à chaque région.
 """)
-
-Explications et Fonctionnalités :
-
-    Chargement des Données :
-        La fonction load_data() charge les données depu
