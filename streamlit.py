@@ -17,34 +17,39 @@ import plotly.express as px
 url = 'https://raw.githubusercontent.com/murpi/wilddata/master/quests/cars.csv'
 df = pd.read_csv(url)
 
-# Interface Streamlit
-st.title('Analyse des Données de Voitures')
+# Afficher les colonnes disponibles
+st.write("Colonnes disponibles dans le DataFrame:")
+st.write(df.columns)
 
-# Sélecteur de région
-region = st.selectbox('Sélectionnez une région:', ['US', 'Europe', 'Japan'])
+# Demander à l'utilisateur de choisir une région (remplacez 'Region' par le nom correct si nécessaire)
+region = st.selectbox('Sélectionnez une région:', df['Region'].unique())
 
-# Filtrer les données en fonction de la région
-df_filtered = df[df['Region'] == region]
+# Vérifier si la colonne 'Region' existe
+if 'Region' in df.columns:
+    # Filtrer les données en fonction de la région
+    df_filtered = df[df['Region'] == region]
 
-# Analyse de corrélation
-st.subheader('Matrice de Corrélation')
-corr = df_filtered.corr()
-fig_corr, ax_corr = plt.subplots(figsize=(10, 8))
-sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_corr)
-st.pyplot(fig_corr)
+    # Analyse de corrélation
+    st.subheader('Matrice de Corrélation')
+    corr = df_filtered.corr()
+    fig_corr, ax_corr = plt.subplots(figsize=(10, 8))
+    sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_corr)
+    st.pyplot(fig_corr)
 
-# Analyse de distribution
-st.subheader('Distribution des Prix des Voitures')
-fig_dist, ax_dist = plt.subplots(figsize=(10, 6))
-sns.histplot(df_filtered['Price'].dropna(), bins=30, kde=True, ax=ax_dist)
-ax_dist.set_title('Distribution des Prix')
-ax_dist.set_xlabel('Prix')
-ax_dist.set_ylabel('Fréquence')
-st.pyplot(fig_dist)
+    # Analyse de distribution
+    st.subheader('Distribution des Prix des Voitures')
+    fig_dist, ax_dist = plt.subplots(figsize=(10, 6))
+    sns.histplot(df_filtered['Price'].dropna(), bins=30, kde=True, ax=ax_dist)
+    ax_dist.set_title('Distribution des Prix')
+    ax_dist.set_xlabel('Prix')
+    ax_dist.set_ylabel('Fréquence')
+    st.pyplot(fig_dist)
 
-# Graphique interactif avec Plotly
-st.subheader('Graphique Interactif des Prix vs. Kilométrage')
-fig_plotly = px.scatter(df_filtered, x='Price', y='Mileage', color='Region',
-                       title=f'Distribution des Prix vs. Kilométrage ({region})',
-                       labels={'Price': 'Prix', 'Mileage': 'Kilométrage'})
-st.plotly_chart(fig_plotly)
+    # Graphique interactif avec Plotly
+    st.subheader('Graphique Interactif des Prix vs. Kilométrage')
+    fig_plotly = px.scatter(df_filtered, x='Price', y='Mileage', color='Region',
+                           title=f'Distribution des Prix vs. Kilométrage ({region})',
+                           labels={'Price': 'Prix', 'Mileage': 'Kilométrage'})
+    st.plotly_chart(fig_plotly)
+else:
+    st.error("La colonne 'Region' n'existe pas dans le DataFrame. Vérifiez le nom des colonnes.")
