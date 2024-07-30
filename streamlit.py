@@ -8,8 +8,6 @@ Original file is located at
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
 import streamlit as st
 
@@ -22,11 +20,18 @@ def load_data():
 
 df = load_data()
 
-# Afficher les colonnes du DataFrame pour vérifier la présence de 'region'
+# Afficher les colonnes disponibles
 st.write('Colonnes disponibles dans le DataFrame :', df.columns)
+st.write('Premières lignes du DataFrame :')
+st.dataframe(df.head())
 
 # Interface utilisateur pour filtrer par région
-region = st.sidebar.selectbox('Choisir une région:', df['region'].unique())
+try:
+    region = st.sidebar.selectbox('Choisir une région:', df['region'].unique())
+except KeyError as e:
+    st.error(f"Erreur de clé : {e}. Assurez-vous que la colonne 'region' existe dans le DataFrame.")
+    st.stop()
+
 df_filtered = df[df['region'] == region]
 
 # Afficher les premiers enregistrements
