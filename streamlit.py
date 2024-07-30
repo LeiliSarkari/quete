@@ -20,7 +20,7 @@ cars_df = pd.read_csv(url)
 # Application Streamlit
 st.title('Analyse des Données des Voitures')
 
-# Sélectionner la région avec des boutons radio
+# Filtrer par région avec des boutons radio
 st.sidebar.header('Filtrer par Région')
 continent = st.sidebar.radio(
     'Sélectionner une région',
@@ -34,13 +34,14 @@ if continent != 'Tous':
 st.subheader('Statistiques de Base')
 st.write(cars_df.describe())
 
-# Graphique de distribution
+# Graphique de distribution des variables numériques
 st.subheader('Distribution des Variables')
 fig, axes = plt.subplots(3, 3, figsize=(18, 12))
 fig.tight_layout(pad=5.0)
 
-# Histogrammes pour chaque variable numérique
-for i, col in enumerate(['mpg', 'cylinders', 'cubicinches', 'hp', 'weightlbs', 'time-to-60']):
+numeric_vars = ['mpg', 'cylinders', 'cubicinches', 'hp', 'weightlbs', 'time-to-60']
+
+for i, col in enumerate(numeric_vars):
     sns.histplot(cars_df[col], kde=True, ax=axes[i // 3, i % 3])
     axes[i // 3, i % 3].set_title(f'Distribution de {col}')
     axes[i // 3, i % 3].set_xlabel('')
@@ -50,7 +51,32 @@ st.pyplot(fig)
 
 # Matrice de corrélation
 st.subheader('Matrice de Corrélation')
-corr = cars_df[['mpg', 'cylinders', 'cubicinches', 'hp', 'weightlbs', 'time-to-60']].corr()
+corr_matrix = cars_df[numeric_vars].corr()
 fig, ax = plt.subplots(figsize=(10, 8))
-sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax, fmt='.2f', linewidths=0.5)
+ax.set_title('Matrice de Corrélation')
 st.pyplot(fig)
+
+# Graphiques de dispersion pour les relations entre variables
+st.subheader('Relations entre Variables')
+fig, axes = plt.subplots(3, 2, figsize=(15, 15))
+fig.tight_layout(pad=5.0)
+
+relations = [
+    ('mpg', 'hp'),
+    ('mpg', 'weightlbs'),
+    ('hp', 'weightlbs'),
+    ('cylinders', 'hp'),
+    ('cubicinches', 'hp'),
+    ('time-to-60', 'weightlbs')
+]
+
+for i, (x, y) in enumerate(relations):
+    sns.scatterplot(data=cars_df, x=x, y=y, ax=axes[i // 2, i % 2])
+    axes[i // 2, i % 2].set_title(f'{x} vs {y}')
+    axes[i // 2, i % 2].set_xlabel(x)
+    axes[i // 2, i % 2].set_ylabel(y)
+
+st.pyplot(fig)
+
+Explication du Code
