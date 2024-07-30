@@ -15,41 +15,41 @@ import plotly.express as px
 
 # Charger les données
 url = 'https://raw.githubusercontent.com/murpi/wilddata/master/quests/cars.csv'
-df = pd.read_csv(url)
+cars_df = pd.read_csv(url)
 
-# Afficher les colonnes disponibles
-st.write("Colonnes disponibles dans le DataFrame:")
-st.write(df.columns)
+# Application Streamlit
+st.title('Analyse des Données des Voitures')
 
-# Demander à l'utilisateur de choisir une région (remplacez 'Region' par le nom correct si nécessaire)
-region = st.selectbox('Sélectionnez une région:', df['Region'].unique())
+# Filtrer par continent
+continent = st.sidebar.selectbox(
+    'Sélectionner une région',
+    ['Tous', 'US', 'Europe', 'Japon']
+)
 
-# Vérifier si la colonne 'Region' existe
-if 'Region' in df.columns:
-    # Filtrer les données en fonction de la région
-    df_filtered = df[df['Region'] == region]
+if continent != 'Tous':
+    cars_df = cars_df[cars_df['continent'] == continent]
 
-    # Analyse de corrélation
-    st.subheader('Matrice de Corrélation')
-    corr = df_filtered.corr()
-    fig_corr, ax_corr = plt.subplots(figsize=(10, 8))
-    sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_corr)
-    st.pyplot(fig_corr)
+# Afficher les statistiques de base
+st.subheader('Statistiques de Base')
+st.write(cars_df.describe())
 
-    # Analyse de distribution
-    st.subheader('Distribution des Prix des Voitures')
-    fig_dist, ax_dist = plt.subplots(figsize=(10, 6))
-    sns.histplot(df_filtered['Price'].dropna(), bins=30, kde=True, ax=ax_dist)
-    ax_dist.set_title('Distribution des Prix')
-    ax_dist.set_xlabel('Prix')
-    ax_dist.set_ylabel('Fréquence')
-    st.pyplot(fig_dist)
+# Graphique de distribution
+st.subheader('Distribution des Variables')
+fig, axes = plt.subplots(3, 3, figsize=(18, 12))
+fig.tight_layout(pad=5.0)
 
-    # Graphique interactif avec Plotly
-    st.subheader('Graphique Interactif des Prix vs. Kilométrage')
-    fig_plotly = px.scatter(df_filtered, x='Price', y='Mileage', color='Region',
-                           title=f'Distribution des Prix vs. Kilométrage ({region})',
-                           labels={'Price': 'Prix', 'Mileage': 'Kilométrage'})
-    st.plotly_chart(fig_plotly)
-else:
-    st.error("La colonne 'Region' n'existe pas dans le DataFrame. Vérifiez le nom des colonnes.")
+# Histogrammes pour chaque variable numérique
+for i, col in enumerate(['mpg', 'cylinders', 'cubicinches', 'hp', 'weightlbs', 'time-to-60']):
+    sns.histplot(cars_df[col], kde=True, ax=axes[i // 3, i % 3])
+    axes[i // 3, i % 3].set_title(f'Distribution de {col}')
+    axes[i // 3, i % 3].set_xlabel('')
+    axes[i // 3, i % 3].set_ylabel('')
+
+st.pyplot(fig)
+
+# Matrice de corrélation
+st.subheader('Matrice de Corrélation')
+corr = cars_df[['mpg', 'cylinders', 'cubicinches', 'hp', 'weightlbs', 'time-to-60']].corr()
+fig, ax = plt.subplots(figsize=(10, 8))
+sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+st.pyplot(fig)
