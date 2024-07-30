@@ -20,8 +20,9 @@ cars_df = pd.read_csv(url)
 # Application Streamlit
 st.title('Analyse des Données des Voitures')
 
-# Filtrer par continent
-continent = st.sidebar.selectbox(
+# Sélectionner la région avec des boutons radio
+st.sidebar.header('Filtrer par Région')
+continent = st.sidebar.radio(
     'Sélectionner une région',
     ['Tous', 'US', 'Europe', 'Japon']
 )
